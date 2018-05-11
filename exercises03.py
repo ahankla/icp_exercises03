@@ -100,14 +100,17 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
         vi = vt[t, :, :] 
         xi = xt[t, :, :]
 
+        # Calculate distances
+        r = get_vector_distance(xi)
+
         # Calculate coefficients: v(l), x(k)
-        l1 = h * vdot(t, xi, vi, m)
+        l1 = h * vdot(t, xi, vi, m, r)
         k1 = h * xdot(i-1, xi, vi)
-        l2 = h * vdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1, m)
+        l2 = h * vdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1, m, r)
         k2 = h * xdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1)
-        l3 = h * vdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2, m)
+        l3 = h * vdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2, m, r)
         k3 = h * xdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2)
-        l4 = h * vdot(i-1 + h, xi + k3, vi + l3, m)
+        l4 = h * vdot(i-1 + h, xi + k3, vi + l3, m, r)
         k4 = h * xdot(i-1 + h, xi + k3, vi + l3)
 
         # Evolve and assign to full list: x(t+1)=x(t)+1/6(l1 + 2*l2 + 2*l3 + l4)
@@ -124,8 +127,15 @@ def mag(x):
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sum(x.dot(x))
 
+def get_vector_distance(x):
+    """ returns r distances """
+    # rij are distances (vector of (2,) shape np.arrays)
+    r12 = x[:, 1] - x[:, 0]
+    r23 = x[:, 2] - x[:, 1]
+    r31 = x[:, 0] - x[:, 2]
+    return [r12, r23, r31]
 
-def vdot(t, x, v, m):
+def vdot(t, x, v, m, r):
     """ to pass to rk4b3. Complicated gravity.
 
     r is (2,3) np.array with the first index being coordinate x/y and the second index being the body label.
@@ -133,12 +143,10 @@ def vdot(t, x, v, m):
     """
     
     # rij are distances (vector of (2,) shape np.arrays)
-    r12 = x[:, 1] - x[:, 0]
-    r23 = x[:, 2] - x[:, 1]
-    r31 = x[:, 0] - x[:, 2]
+    r12, r23, r31 = r
 
     # rijm are magnitude of distances (scalar)
-    r12m = mag(r12) 
+    r12m = mag(r12)
     r23m = mag(r23)
     r31m = mag(r31)
 
