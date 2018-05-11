@@ -184,10 +184,9 @@ plt.legend(["Body 1", "Body 2", "Body 3"])
 # -----------------------
 #     Part b
 # -----------------------
-### XX Haven't updated positions yet or recorded minimum separation
 # Set Initial Positions
-x1 = -0.97000436; y1 = 0.24308753; vx1 = 0.; vy1 = 0.
-x2 = 0.97000436; y2 = -0.24308753; vx2 = 0.; vy2 = 0.
+x1 = 0.; y1 = 4.; vx1 = 0.; vy1 = 0.
+x2 = 3.; y2 = 0.; vx2 = 0.; vy2 = 0.
 x3 = 0.; y3 = 0.; vx3 = 0.; vy3 = 0.
 
 # Set Masses
