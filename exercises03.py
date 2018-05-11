@@ -91,13 +91,12 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     # Timestemp t=0: time(0) = initial values
     xi = x0
     vi = v0
-    r0 = get_vector_distance(x0)
-    ri = r0
+    ri = get_vector_distance(x0)
 
     # Assign: 
-    xt[0, :, :] = x0
-    vt[0, :, :] = v0
-    rt[0, :, :] = r0
+    xt[0, :, :] = xi
+    vt[0, :, :] = vi
+    rt[0, :, :] = ri
 
     # Time evolution!
     for i in range(1, n + 1):
