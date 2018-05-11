@@ -45,3 +45,13 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+# =========================
+# Editor Files
+# =========================
+
+# Visual Studio Code
+# =========================
+.vscode
+.idea
