@@ -57,7 +57,7 @@ def fun(x, y):
 #          Problem 2, part a
 # -------------------------------------
 
-def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
+def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False, energies=False):
     """ Runge-Kutta for 3-body problem. 
     
     Differs from rk4, by integrating each left-hand side
@@ -131,10 +131,15 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
         pet[0,:,:] = pei
         ket[0,:,:] = kei
 
-    if not distances:
-        return xt, vt
-    else: 
-        return xt, vt, rt
+    # Define return
+    ret = [xt, vt]
+    if distances:
+        ret.append(rt)
+    if energies: 
+        ret.append(pet)
+        ret.append(ket)
+
+    return ret
 
 
 def mag(x):
@@ -219,7 +224,7 @@ v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
 dt = 0.001
-t = 2.2
+t = 2.1
 xt, vt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt))
 
 # Visualize
@@ -272,7 +277,8 @@ v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 # Evolve over time
 dt = 0.001
 t = 25
-xt, vt, rt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), distances=True)
+xt, vt, rt, pet, ket = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), 
+                             distances=True, energies=True)
 
 ## (i) Visualize Trajectories 
 plt.figure(f); f += 1
