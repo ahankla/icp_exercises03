@@ -138,7 +138,7 @@ def get_vector_distance(x):
     r12 = x[:, 1] - x[:, 0]
     r23 = x[:, 2] - x[:, 1]
     r31 = x[:, 0] - x[:, 2]
-    return np.array([r12, r23, r31])
+    return np.stack([r12, r23, r31], axis=1)
 
 def vdot(t, x, v, m, r):
     """ to pass to rk4b3. Complicated gravity.
