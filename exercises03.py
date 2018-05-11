@@ -75,8 +75,8 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     xt = np.zeros((n+1, 2, 3)) 
     vt = np.zeros((n+1, 2, 3))
     rt = np.zeros((n+1, 2, 3))
-    pet = np.zeros((n+1, 2, 3))
-    ket = np.zeros((n+1, 2, 3))
+    pet = np.zeros((n+1, 1, 3))
+    ket = np.zeros((n+1, 1, 3))
 
     # Warnings
     if x0.shape != (2,3):
@@ -101,8 +101,8 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     xt[0,:,:] = xi
     vt[0,:,:] = vi
     rt[0,:,:] = ri
-    pei[0,:,:] = pei
-    kei[0,:,:] = kei
+    pet[0,:,:] = pei
+    ket[0,:,:] = kei
 
     # Time evolution!
     for i in range(1, n + 1):
@@ -128,8 +128,8 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
         xt[i,:,:] = xi
         vt[i,:,:] = vi
         rt[i,:,:] = ri
-        pei[0,:,:] = pei
-        kei[0,:,:] = kei
+        pet[0,:,:] = pei
+        ket[0,:,:] = kei
 
     if not distances:
         return xt, vt
@@ -141,6 +141,11 @@ def mag(x):
     """ returns sum of squared matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sum(x.dot(x))
+
+def norm(x):
+    """ returns sum of squared matrix """
+    # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
+    return np.sqrt(x.dot(x))
 
 def get_vector_distance(x):
     """ returns r distances """
@@ -184,26 +189,26 @@ def get_potential_energy(m, r):
     """ Newtonian rescaled potential energy: m1*m2/r12 (no Gravitational constant) """
 
     # Get: Potential Energies
-    PE12 = m[0]*m[1] / r[:,0]
-    PE23 = m[1]*m[2] / r[:,1]
-    PE31 = m[2]*m[0] / r[:,2]
+    PE12 = m[0]*m[1] / norm(r[:,0])
+    PE23 = m[1]*m[2] / norm(r[:,1])
+    PE31 = m[2]*m[0] / norm(r[:,2])
 
     # Return sum
-    return (PE12 + PE23 + PE31)
+    return np.array([PE12, PE23, PE31])
 
 def get_kinetic_energy(m, r, v):
-    """ Classical kinetic energy: 1/2*m*v^2 """
-    return np.array([0.5*m[i]*v[i]**2 for i in range(m)])
+    """ Classical kinetic energy: 1/2*m*v^2. v=norm(v)"""
+    return np.array([0.5*m[i]*norm(v[:,i])**2 for i in range(len(m))])
 
 # -----------------------
 #     Part a
 # -----------------------
-# Set Initial Positions
+# Set: Initial Positions
 x1 = -0.97000436; y1 = 0.24308753; vx1 = -0.46620368; vy1 = -0.43236573
 x2 = 0.97000436; y2 = -0.24308753; vx2 = -0.46620368; vy2 = -0.43236573
 x3 = 0.; y3 = 0.; vx3 = 0.93240737; vy3 = 0.86473146
 
-# Set Masses
+# Set: Masses
 m1 = 1.; m2 = 1.; m3 = 1.
 m = np.array([m1, m2, m3])
 
@@ -241,16 +246,21 @@ plt.legend(["Body 1", "Body 2", "Body 3"])
 # -----------------------
 #     Part b
 # -----------------------
-# Set Initial Positions: 
+# Set: Initial Positions
 # m1 opposes l1 = 3, m2 opposes l2 = 4, m3 opposes l3 = 5.
 # x1 = (0,4), x2 = (3,0), x3 = (0,0)
 # Center of Mass: sum(m_i*x_i) = sum(m_i) x_com. x_com = (1,1)
 # Adjust positions: x1 = (-1,3), x2 = (2,-1), x3 = (-1,-1), x_com = (0,0)
-x1 = -1.; y1 =  3.; vx1 = 0.; vy1 = 0.
-x2 =  2.; y2 = -1.; vx2 = 0.; vy2 = 0.
-x3 = -1.; y3 = -1.; vx3 = 0.; vy3 = 0.
+x1, y1 = [-1.,  3.]
+x2, y2 = [ 2., -1.]
+x3, y3 = [-1., -1.]
 
-# Set Masses
+# Set: Velocities
+vx1 = 0.; vy1 = 0.
+vx2 = 0.; vy2 = 0.
+vx3 = 0.; vy3 = 0.
+
+# Set: Masses
 m1 = 3.; m2 = 4.; m3 = 5.
 m = np.array([m1, m2, m3])
 
@@ -259,7 +269,7 @@ x0 = np.array(np.stack([[x1, y1], [x2, y2], [x3, y3]], axis=1))
 v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
-dt = 0.0001
+dt = 0.001
 t = 25
 xt, vt, rt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), distances=True)
 
