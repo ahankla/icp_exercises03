@@ -71,7 +71,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     h and n: scalars. n an integer, h float
     """
     
-    # Shape: n+1 time steps, 2 coords (x, y), 3 bodies (0, 1, 2)
+    # Initialize Arrays: n+1 time steps, 2 coords (x, y), 3 bodies (0, 1, 2)
     xt = np.zeros((n+1, 2, 3)) 
     vt = np.zeros((n+1, 2, 3))
     rt = np.zeros((n+1, 2, 3))
@@ -88,15 +88,15 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
               "Exiting...")
         return 0
 
-    # Timestemp t=0: time(0) = initial values
+    # Timestep t=0: time(0) = initial values
     xi = x0
     vi = v0
     ri = get_vector_distance(x0)
 
-    # Assign: 
-    xt[0, :, :] = xi
-    vt[0, :, :] = vi
-    rt[0, :, :] = ri
+    # Assign 
+    xt[0,:,:] = xi
+    vt[0,:,:] = vi
+    rt[0,:,:] = ri
 
     # Time evolution!
     for i in range(1, n + 1):
@@ -117,9 +117,9 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
         ri = get_vector_distance(xi)
     
         # Assign to full list
-        xt[i, :, :] = xi
-        vt[i, :, :] = vi
-        rt[i, :, :] = ri
+        xt[i,:,:] = xi
+        vt[i,:,:] = vi
+        rt[i,:,:] = ri
 
     if not distances:
         return xt, vt
