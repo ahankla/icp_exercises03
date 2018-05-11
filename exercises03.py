@@ -143,7 +143,7 @@ def mag(x):
     return np.sum(x.dot(x))
 
 def norm(x):
-    """ returns sum of squared matrix """
+    """ returns norm of matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sqrt(x.dot(x))
 
