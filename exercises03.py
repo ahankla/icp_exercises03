@@ -145,6 +145,7 @@ def mag(x):
 def norm(x):
     """ returns norm of matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
+    # numpy.linalg.norm is slower since it requires calling linalg library(?)
     return np.sqrt(x.dot(x))
 
 def get_vector_distance(x):
@@ -167,7 +168,7 @@ def vdot(t, x, v, m, r):
     # unstack axis=1: rij are distances (vector of (2,) shape np.arrays)
     r12, r23, r31 = r[:,0], r[:,1], r[:,2]
 
-    # rijm are magnitude of distances (scalar)
+    # rijm are sum of squared distances (scalar)
     r12m = mag(r12)
     r23m = mag(r23)
     r31m = mag(r31)
