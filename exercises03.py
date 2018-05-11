@@ -86,6 +86,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
               "Exiting...")
         return 0
 
+    # Set: time(0) = initial values
     xt[0, :, :] = x0
     vt[0, :, :] = v0
 
