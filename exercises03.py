@@ -72,17 +72,17 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
     """
     
     # Shape: n+1 time steps, 2 coords (x, y), 3 bodies (0, 1, 2)
-    xt = np.zeros((n+1, 2, 3)); 
-    vt = np.zeros((n+1, 2, 3));
+    xt = np.zeros((n+1, 2, 3)) 
+    vt = np.zeros((n+1, 2, 3))
 
     if x0.shape != (2,3):
         print("Error! Please enter the correct dimensions for initial positions."
-              "Current shape is " + x0.shape+", need (2,3)."
+              "Current shape is " + x0.shape + ", need (2,3)."
               "Exiting...")
         return 0
     if v0.shape != (2,3):
         print("Error! Please enter the correct dimensions for initial velocities."
-              "Current shape is " +v0.shape+", need (2,3)."
+              "Current shape is " + v0.shape + ", need (2,3)."
               "Exiting...")
         return 0
 
@@ -91,12 +91,13 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
 
     # Time evolution!
     for i in range(1, n + 1):
+        # Time of the previous step
         t = i - 1
         # Note that vdot, rdot should return (2,3) arrays!!
-        vi = vt[t, :, :] #i-1 is the time of the previous step
+        vi = vt[t, :, :] 
         xi = xt[t, :, :]
 
-        # Calculate coefficients
+        # Calculate coefficients: v(l), x(k)
         l1 = h * vdot(t, xi, vi, m)
         k1 = h * xdot(i-1, xi, vi)
         l2 = h * vdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1, m)
@@ -153,7 +154,7 @@ x2 = 0.97000436; y2 = -0.24308753; vx2 = -0.46620368; vy2 = -0.43236573
 x3 = 0.; y3 = 0.; vx3 = 0.93240737; vy3 = 0.86473146
 
 # Set Masses
-m1 = 1.; m2 = 1.; m3 = 1.;
+m1 = 1.; m2 = 1.; m3 = 1.
 m = np.array([m1, m2, m3])
 
 # Scalars -> Vector
@@ -184,10 +185,14 @@ plt.legend(["Body 1", "Body 2", "Body 3"])
 # -----------------------
 #     Part b
 # -----------------------
-# Set Initial Positions
-x1 = 0.; y1 = 4.; vx1 = 0.; vy1 = 0.
-x2 = 3.; y2 = 0.; vx2 = 0.; vy2 = 0.
-x3 = 0.; y3 = 0.; vx3 = 0.; vy3 = 0.
+# Set Initial Positions: 
+# m1 opposes l1 = 3, m2 opposes l2 = 4, m3 opposes l3 = 5.
+# x1 = (0,4), x2 = (3,0), x3 = (0,0)
+# Center of Mass: sum(m_i*x_i) = sum(m_i) x_com. x_com = (1,1)
+# Adjust positions: x1 = (-1,3), x2 = (2,-1), x3 = (-1,-1), x_com = (0,0)
+x1 = -1.; y1 =  3.; vx1 = 0.; vy1 = 0.
+x2 =  2.; y2 = -1.; vx2 = 0.; vy2 = 0.
+x3 = -1.; y3 = -1.; vx3 = 0.; vy3 = 0.
 
 # Set Masses
 m1 = 3.; m2 = 4.; m3 = 5.
@@ -198,10 +203,11 @@ x0 = np.array(np.stack([[x1, y1], [x2, y2], [x3, y3]], axis=1))
 v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
-dt = 0.001
-xt, vt = rk4b3(xdot, vdot, x0, v0, m, dt, int(2/dt))
+dt = 0.01
+t = 25
+xt, vt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt))
 
-# Visualize
+# (i) Visualize Trajectories 
 plt.figure(f); f += 1
 plt.plot(xt[:, 0, 0], xt[:, 1, 0])
 plt.plot(xt[:, 0, 1], xt[:, 1, 1])
@@ -211,9 +217,17 @@ plt.plot(xt[0, 0, 1], xt[0, 1, 1], color="C1", marker="*")
 plt.plot(xt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Step size: " + str(dt))
+plt.title("Step size: {} for total time: {}".format(dt, t))
 plt.legend(["Body 1", "Body 2", "Body 3"])
-# plt.savefig("exercise03_0_stepsize001.pdf")
-
+plt.savefig("exercise03_2_stepsize{}_time{}.pdf".format(
+    str(dt).replace(".",""), t))
 
 plt.show()
+
+
+# (ii) Visualize mutual distances of the three bodies in logarithmic scale
+
+# (iii) Visualize error of total energz of the system in logarithmic scaling 
+
+
+
