@@ -123,8 +123,12 @@ def mag2(x):
     if x.shape != (2,):
         print("Vector shape is " + x.shape + " but should be (2,)!! Exiting...")
         return 0
-    return np.sum(x.dot(x))#x[0]**2 + x[1]**2
+    return x[0]**2 + x[1]**2
 
+def mag(x):
+    """ return sum of squared matrix """"
+    # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
+    return np.sum(x.dot(x))
 
 def vdot(t, x, v, m):
     """to pass to rk4b3. Complicated gravity.
@@ -132,9 +136,9 @@ def vdot(t, x, v, m):
     r is (2,3) np.array with the first index being coordinate x/y and the second index being the body label.
     return (2,3) np.array
     """
-    r12 = x[:, 1] - x[:, 0]; r12m = mag2(r12) # rij are (2,) shape np.arrays. rijm are scalars
-    r23 = x[:, 2] - x[:, 1]; r23m = mag2(r23)
-    r31 = x[:, 0] - x[:, 2]; r31m = mag2(r31)
+    r12 = x[:, 1] - x[:, 0]; r12m = mag(r12) # rij are (2,) shape np.arrays. rijm are scalars
+    r23 = x[:, 2] - x[:, 1]; r23m = mag(r23)
+    r31 = x[:, 0] - x[:, 2]; r31m = mag(r31)
     a12 = m[1]*r12/r12m**1.5 - m[2]*r31/r31m**1.5 # np.arrays of shape (2,)
     a23 = m[2]*r23/r23m**1.5 - m[0]*r12/r12m**1.5
     a31 = m[0]*r31/r31m**1.5 - m[1]*r23/r23m**1.5
