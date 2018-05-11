@@ -283,8 +283,8 @@ x0 = np.array(np.stack([[x1, y1], [x2, y2], [x3, y3]], axis=1))
 v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
-dt = 0.0001
-t = 8
+dt = 0.00001
+t = 9
 xt, vt, rt, pet, ket = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), 
                              distances=True, energies=True)
 
@@ -315,16 +315,16 @@ rt = np.abs(rt)
 plt.figure(f)
 f += 1
 # Plot Path
-plt.plot(rt[:, 0, 0], xt[:, 1, 0])
-plt.plot(rt[:, 0, 1], xt[:, 1, 1])
-plt.plot(rt[:, 0, 2], xt[:, 1, 2])
+plt.plot(rt[:, 0, 0])
+plt.plot(rt[:, 0, 1])
+plt.plot(rt[:, 0, 2])
 # Plot Initial Position
 plt.plot(rt[0, 0, 0], xt[0, 1, 0], color="C0", marker="*")
 plt.plot(rt[0, 0, 1], xt[0, 1, 1], color="C1", marker="*")
 plt.plot(rt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
 # Labeling
-plt.xlabel("x")
-plt.ylabel("y")
+plt.xlabel("Timestep")
+plt.ylabel("Distance")
 plt.title("Distances\nStep size: {} for total time: {}".format(dt, t))
 plt.legend(["Distance 1-2", "Distance 2-3", "Distance 3-1"])
 # Log Scale
@@ -334,6 +334,8 @@ ax.set_yscale("log", nonposy='clip')
 # Save
 plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
     str(dt).replace(".",""), t))
+# Min Separation
+print(np.min(rt,axis=1))
 
 
 ## (iii) Visualize ERROR OF TOTAL ENERGY of the system in logarithmic scaling 
@@ -343,8 +345,8 @@ error_ke = (ket[0,:,:] - ket[:,:,:])[:,0,:]
 error_pe_total = np.sum(error_pe, axis=1)
 error_ke_total = np.sum(error_ke, axis=1)
 te_i = pet[0,:,:] + ket[0,:,:]
-te_total = np.sum(np.abs(pet) + np.abs(ket), axis=1)
-error_total_norm = te_total/te_i
+te_total = np.sum(np.abs(pet[:,0,:]) + np.abs(ket[:,0,:]), axis=1)
+error_total_norm = te_total/np.sum(te_i)
 # Plot
 plt.figure(f)
 f += 1
