@@ -117,18 +117,11 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
     return xt, vt
 
 
-
-def mag2(x):
-    """x is 1x2 np.array. Return scalar magnitude"""
-    if x.shape != (2,):
-        print("Vector shape is " + x.shape + " but should be (2,)!! Exiting...")
-        return 0
-    return x[0]**2 + x[1]**2
-
 def mag(x):
     """ return sum of squared matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sum(x.dot(x))
+
 
 def vdot(t, x, v, m):
     """to pass to rk4b3. Complicated gravity.
@@ -168,7 +161,8 @@ v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
 dt = 0.001
-xt, vt = rk4b3(xdot, vdot, x0, v0, m, dt, int(2/dt))
+t = 2
+xt, vt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt))
 
 # Visualize
 f = 1
@@ -182,9 +176,11 @@ plt.plot(xt[0, 0, 1], xt[0, 1, 1], color="C1", marker="*")
 plt.plot(xt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Step size: " + str(dt))
+plt.title("Step size: {} for total time: {}".format(dt, t))
 plt.legend(["Body 1", "Body 2", "Body 3"])
-# plt.savefig("exercise03_0_stepsize001.pdf")
+#plt.savefig("exercise03_0_stepsize{}_time{}.pdf".format(
+#    str(dt).replace(".",""), t))
+
 
 
 # -----------------------
