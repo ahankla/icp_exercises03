@@ -121,7 +121,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
         xi = xi + (k1 + 2*k2 + 2*k3 + k4) / 6.
         vi = vi + (l1 + 2*l2 + 2*l3 + l4) / 6.
         ri = get_vector_distance(xi)
-        pei = get_potential_energy(m, ri, vi)
+        pei = get_potential_energy(m, ri)
         kei = get_kinetic_energy(m, ri, vi)
     
         # Assign to full list
