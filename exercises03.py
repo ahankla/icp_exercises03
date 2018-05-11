@@ -71,10 +71,12 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     h and n: scalars. n an integer, h float
     """
     
-    # Initialize Arrays: n+1 time steps, 2 coords (x, y), 3 bodies (0, 1, 2)
+    # Initialize Arrays [n+1 time steps, 2 coords (x, y), 3 bodies (0, 1, 2)]
     xt = np.zeros((n+1, 2, 3)) 
     vt = np.zeros((n+1, 2, 3))
     rt = np.zeros((n+1, 2, 3))
+    pet = np.zeros((n+1, 2, 3))
+    ket = np.zeros((n+1, 2, 3))
 
     # Warnings
     if x0.shape != (2,3):
@@ -92,11 +94,15 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     xi = x0
     vi = v0
     ri = get_vector_distance(x0)
+    pei = get_potential_energy(m, ri)
+    kei = get_kinetic_energy(m, ri, vi)
 
-    # Assign 
+    # Assign initial values
     xt[0,:,:] = xi
     vt[0,:,:] = vi
     rt[0,:,:] = ri
+    pei[0,:,:] = pei
+    kei[0,:,:] = kei
 
     # Time evolution!
     for i in range(1, n + 1):
@@ -115,11 +121,15 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
         xi = xi + (k1 + 2*k2 + 2*k3 + k4) / 6.
         vi = vi + (l1 + 2*l2 + 2*l3 + l4) / 6.
         ri = get_vector_distance(xi)
+        pei = get_potential_energy(m, ri, vi)
+        kei = get_kinetic_energy(m, ri, vi)
     
         # Assign to full list
         xt[i,:,:] = xi
         vt[i,:,:] = vi
         rt[i,:,:] = ri
+        pei[0,:,:] = pei
+        kei[0,:,:] = kei
 
     if not distances:
         return xt, vt
@@ -134,10 +144,12 @@ def mag(x):
 
 def get_vector_distance(x):
     """ returns r distances """
+    
     # rij are distances (vector of (2,) shape np.arrays)
     r12 = x[:, 1] - x[:, 0]
     r23 = x[:, 2] - x[:, 1]
     r31 = x[:, 0] - x[:, 2]
+
     return np.stack([r12, r23, r31], axis=1)
 
 def vdot(t, x, v, m, r):
@@ -146,8 +158,8 @@ def vdot(t, x, v, m, r):
     r is (2,3) np.array with the first index being coordinate x/y and the second index being the body label.
     return (2,3) np.array
     """
-    
-    # rij are distances (vector of (2,) shape np.arrays)
+    # Note: C vs Fortran naming convention 0=1, 1=2, 2=3
+    # unstack axis=1: rij are distances (vector of (2,) shape np.arrays)
     r12, r23, r31 = r[:,0], r[:,1], r[:,2]
 
     # rijm are magnitude of distances (scalar)
@@ -156,6 +168,7 @@ def vdot(t, x, v, m, r):
     r31m = mag(r31)
 
     # np.arrays of shape (2,)
+    # ??????
     a12 = (m[1]*r12)/(r12m**1.5) - (m[2]*r31)/(r31m**1.5) 
     a23 = (m[2]*r23)/(r23m**1.5) - (m[0]*r12)/(r12m**1.5)
     a31 = (m[0]*r31)/(r31m**1.5) - (m[1]*r23)/(r23m**1.5)
@@ -167,6 +180,20 @@ def xdot(t, x, v):
     """ PLACEHOLDER.  xdot = v.  v is 2x3 np.array of velocities. """
     return v
 
+def get_potential_energy(m, r):
+    """ Newtonian rescaled potential energy: m1*m2/r12 (no Gravitational constant) """
+
+    # Get: Potential Energies
+    PE12 = m[0]*m[1] / r[:,0]
+    PE23 = m[1]*m[2] / r[:,1]
+    PE31 = m[2]*m[0] / r[:,2]
+
+    # Return sum
+    return (PE12 + PE23 + PE31)
+
+def get_kinetic_energy(m, r, v):
+    """ Classical kinetic energy: 1/2*m*v^2 """
+    return np.array([0.5*m[i]*v[i]**2 for i in range(m)])
 
 # -----------------------
 #     Part a
@@ -255,7 +282,7 @@ plt.savefig("exercise03_2_stepsize{}_time{}.pdf".format(
     str(dt).replace(".",""), t))
 
 ## (ii) Visualize mutual distances of the three bodies in logarithmic scale
-# Take absolute value since its distances
+# Take absolute value since they're distances
 rt = np.abs(rt)
 # Plot
 plt.figure(f)
@@ -273,14 +300,23 @@ plt.xlabel("x")
 plt.ylabel("y")
 plt.title("Distances\nStep size: {} for total time: {}".format(dt, t))
 plt.legend(["Body 1", "Body 2", "Body 3"])
-plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
-    str(dt).replace(".",""), t))
+# Log Scale
 ax = plt.gca()
 ax.set_xscale("log", nonposx='clip')
 ax.set_yscale("log", nonposy='clip')
+# Save
+plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
+    str(dt).replace(".",""), t))
 
-# (iii) Visualize error of total energz of the system in logarithmic scaling 
+# (iii) Visualize ERROR OF TOTAL ENERGY of the system in logarithmic scaling 
+# Get: total energy at t=0
+KE_0 = 0
+PE_0 = 0
+TE_0 = PE_0 + KE_0
 
+# Get: total energy at t=i
+
+# Get: error in total energy = abs(TE(t=i)-TE(t=0))
 
 
 plt.show()
