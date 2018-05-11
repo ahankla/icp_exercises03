@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
+from numba import jit
 
 # -------------------------------------
 #         Exercise 1: RK4
@@ -57,6 +59,7 @@ def fun(x, y):
 #          Problem 2, part a
 # -------------------------------------
 
+
 def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False, energies=False):
     """ Runge-Kutta for 3-body problem. 
     
@@ -105,7 +108,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False, energies=False):
     ket[0,:,:] = kei
 
     # Time evolution!
-    for i in range(1, n + 1):
+    for i in tqdm(range(1, n+1)):
 
         # Calculate coefficients: v(l), x(k)
         l1 = h * vdot(t, xi, vi, m)
@@ -128,8 +131,8 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False, energies=False):
         xt[i,:,:] = xi
         vt[i,:,:] = vi
         rt[i,:,:] = ri
-        pet[0,:,:] = pei
-        ket[0,:,:] = kei
+        pet[i,:,:] = pei
+        ket[i,:,:] = kei
 
     # Define return
     ret = [xt, vt]
@@ -147,11 +150,13 @@ def mag2(x):
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sum(x.dot(x))
 
+
 def norm(x):
     """ returns norm of matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     # numpy.linalg.norm is slower since it requires calling linalg library(?)
     return np.sqrt(x.dot(x))
+
 
 def get_vector_distance(x):
     """ returns r distances """
@@ -162,6 +167,7 @@ def get_vector_distance(x):
     r31 = x[:,0] - x[:,2]
 
     return np.stack([r12, r23, r31], axis=1)
+
 
 def vdot(t, x, v, m):
     """ to pass to rk4b3. Complicated gravity.
@@ -181,11 +187,11 @@ def vdot(t, x, v, m):
 
     # a1 = m1 r12_hat / |r12|^2 - m2 r31_hat / |r31|^2
     # np.arrays of shape (2,)
-    a12 = (m[1]*r12)/(r12m**1.5) - (m[2]*r31)/(r31m**1.5) 
-    a23 = (m[2]*r23)/(r23m**1.5) - (m[0]*r12)/(r12m**1.5)
-    a31 = (m[0]*r31)/(r31m**1.5) - (m[1]*r23)/(r23m**1.5)
+    a1 = (m[1]*r12)/(r12m**1.5) - (m[2]*r31)/(r31m**1.5) 
+    a2 = (m[2]*r23)/(r23m**1.5) - (m[0]*r12)/(r12m**1.5)
+    a3 = (m[0]*r31)/(r31m**1.5) - (m[1]*r23)/(r23m**1.5)
 
-    return np.stack([a12, a23, a31], axis=1)
+    return np.stack([a1, a2, a3], axis=1)
 
 
 def xdot(t, x, v):
@@ -202,6 +208,7 @@ def get_potential_energy(m, r):
 
     # Return sum
     return np.array([PE12, PE23, PE31])
+
 
 def get_kinetic_energy(m, r, v):
     """ Classical kinetic energy: 1/2*m*v^2. v=norm(v)"""
@@ -276,8 +283,8 @@ x0 = np.array(np.stack([[x1, y1], [x2, y2], [x3, y3]], axis=1))
 v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
-dt = 0.001
-t = 25
+dt = 0.0001
+t = 8
 xt, vt, rt, pet, ket = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), 
                              distances=True, energies=True)
 
@@ -330,35 +337,35 @@ plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
 
 
 ## (iii) Visualize ERROR OF TOTAL ENERGY of the system in logarithmic scaling 
-# Get: total energy at t=0
-KE_0 = ket[0,:,:]
-PE_0 = pet[0,:,:]
-TE_0 = PE_0 + KE_0
-# Get: total energy at t=i
-TE_i = pet[1:,:,:] + ket[1:,:,:]
 # Get: error in total energy = abs(TE(t=i)-TE(t=0))
-err_te = np.abs(TE_i - TE_0)
-err_total = np.sum(err_te, axis=2)[:,0]
-print(pet.shape, ket.shape, err_te.shape, err_total.shape)
-## Plot
-#plt.figure(f)
-#f += 1
-## Plot Path
-#plt.plot(err_te[:, 0, 0], xt[:, 1, 0])
-## Plot Initial Position
+error_pe = (pet[0,:,:] - pet[:,:,:])[:,0,:]
+error_ke = (ket[0,:,:] - ket[:,:,:])[:,0,:]
+error_pe_total = np.sum(error_pe, axis=1)
+error_ke_total = np.sum(error_ke, axis=1)
+te_i = pet[0,:,:] + ket[0,:,:]
+te_total = np.sum(np.abs(pet) + np.abs(ket), axis=1)
+error_total_norm = te_total/te_i
+# Plot
+plt.figure(f)
+f += 1
+# Plot Path
+#plt.plot(error_pe_total, label="Error in Potential Energy")
+#plt.plot(error_ke_total, label="Error in Kinetic Energy")
+plt.plot(error_total_norm, label="Error in Total Energy")
+# Plot Initial Position
 #plt.plot(rt[0, 0, 0], xt[0, 1, 0], color="C0", marker="*")
-## Labeling
-#plt.xlabel("x")
-#plt.ylabel("y")
-#plt.title("Distances\nStep size: {} for total time: {}".format(dt, t))
-#plt.legend(["Body 1", "Body 2", "Body 3"])
+# Labeling
+plt.xlabel("Time")
+plt.ylabel("Change in energy")  # TODO: Insert Units
+plt.title("Error time evolution\nStep size: {} for total time: {}".format(dt, t))
+plt.legend()
 ## Log Scale
-#ax = plt.gca()
-#ax.set_xscale("log", nonposx='clip')
-#ax.set_yscale("log", nonposy='clip')
+ax = plt.gca()
+ax.set_xscale("log", nonposx='clip')
+ax.set_yscale("log", nonposy='clip')
 ## Save
-#plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
-#    str(dt).replace(".",""), t))
+plt.savefig("exercise03_4_stepsize{}_time{}.pdf".format(
+    str(dt).replace(".",""), t))
 
 
 plt.show()
