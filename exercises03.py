@@ -327,13 +327,33 @@ plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
 
 # (iii) Visualize ERROR OF TOTAL ENERGY of the system in logarithmic scaling 
 # Get: total energy at t=0
-KE_0 = 0
-PE_0 = 0
+KE_0 = ket[0,:,:]
+PE_0 = pet[0,:,:]
 TE_0 = PE_0 + KE_0
-
 # Get: total energy at t=i
-
+TE_i = pet[1,:,:] + ket[1,:,:]
 # Get: error in total energy = abs(TE(t=i)-TE(t=0))
+err_te = np.abs(TE_i - TE_0)
+print(err_te.shape)
+## Plot
+#plt.figure(f)
+#f += 1
+## Plot Path
+#plt.plot(err_te[:, 0, 0], xt[:, 1, 0])
+## Plot Initial Position
+#plt.plot(rt[0, 0, 0], xt[0, 1, 0], color="C0", marker="*")
+## Labeling
+#plt.xlabel("x")
+#plt.ylabel("y")
+#plt.title("Distances\nStep size: {} for total time: {}".format(dt, t))
+#plt.legend(["Body 1", "Body 2", "Body 3"])
+## Log Scale
+#ax = plt.gca()
+#ax.set_xscale("log", nonposx='clip')
+#ax.set_yscale("log", nonposy='clip')
+## Save
+#plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
+#    str(dt).replace(".",""), t))
 
 
 plt.show()
