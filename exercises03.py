@@ -57,7 +57,7 @@ def fun(x, y):
 #          Problem 2, part a
 # -------------------------------------
 
-def rk4b3(xdot, vdot, x0, v0, m, h, n):
+def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     """ Runge-Kutta for 3-body problem. 
     
     Differs from rk4, by integrating each left-hand side
@@ -74,6 +74,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
     # Shape: n+1 time steps, 2 coords (x, y), 3 bodies (0, 1, 2)
     xt = np.zeros((n+1, 2, 3)) 
     vt = np.zeros((n+1, 2, 3))
+    rt = np.zeros((n+1, 2, 3))
 
     if x0.shape != (2,3):
         print("Error! Please enter the correct dimensions for initial positions."
@@ -89,6 +90,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
     # Set: time(0) = initial values
     xt[0, :, :] = x0
     vt[0, :, :] = v0
+    rt[0, :, :] = get_vector_distance(x0)
 
     # Time evolution!
     for i in range(1, n + 1):
@@ -119,11 +121,14 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
         xinew = xi + (k1 + 2*k2 + 2*k3 + k4) / 6.
         xt[i, :, :] = xinew
 
-    return xt, vt
+    if not distances:
+        return xt, vt
+    else: 
+        return xt, vt, rt
 
 
 def mag(x):
-    """ return sum of squared matrix """
+    """ returns sum of squared matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sum(x.dot(x))
 
@@ -133,7 +138,7 @@ def get_vector_distance(x):
     r12 = x[:, 1] - x[:, 0]
     r23 = x[:, 2] - x[:, 1]
     r31 = x[:, 0] - x[:, 2]
-    return [r12, r23, r31]
+    return np.array([r12, r23, r31])
 
 def vdot(t, x, v, m, r):
     """ to pass to rk4b3. Complicated gravity.
@@ -159,7 +164,7 @@ def vdot(t, x, v, m, r):
 
 
 def xdot(t, x, v):
-    """xdot = v.  v is 2x3 np.array of velocities."""
+    """ PLACEHOLDER.  xdot = v.  v is 2x3 np.array of velocities. """
     return v
 
 
@@ -226,7 +231,7 @@ v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 # Evolve over time
 dt = 0.01
 t = 25
-xt, vt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt))
+xt, vt, rt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), distances=True)
 
 # (i) Visualize Trajectories 
 plt.figure(f); f += 1
