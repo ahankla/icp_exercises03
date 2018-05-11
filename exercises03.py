@@ -119,11 +119,11 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
 
 
 def mag2(x):
-    """x is 1x2 np.array. Return scalar"""
+    """x is 1x2 np.array. Return scalar magnitude"""
     if x.shape != (2,):
         print("Vector shape is " + x.shape + " but should be (2,)!! Exiting...")
         return 0
-    return x[0]**2 + x[1]**2
+    return np.sum(x.dot(x))#x[0]**2 + x[1]**2
 
 
 def vdot(t, x, v, m):
