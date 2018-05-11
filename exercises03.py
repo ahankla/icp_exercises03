@@ -108,13 +108,13 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False, energies=False):
     for i in range(1, n + 1):
 
         # Calculate coefficients: v(l), x(k)
-        l1 = h * vdot(t, xi, vi, m, ri)
+        l1 = h * vdot(t, xi, vi, m)
         k1 = h * xdot(i-1, xi, vi)
-        l2 = h * vdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1, m, ri)
+        l2 = h * vdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1, m)
         k2 = h * xdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1)
-        l3 = h * vdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2, m, ri)
+        l3 = h * vdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2, m)
         k3 = h * xdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2)
-        l4 = h * vdot(i-1 + h, xi + k3, vi + l3, m, ri)
+        l4 = h * vdot(i-1 + h, xi + k3, vi + l3, m)
         k4 = h * xdot(i-1 + h, xi + k3, vi + l3)
 
         # Evolve: x(t+1)=x(t)+1/6(l1 + 2*l2 + 2*l3 + l4)
@@ -163,7 +163,7 @@ def get_vector_distance(x):
 
     return np.stack([r12, r23, r31], axis=1)
 
-def vdot(t, x, v, m, r):
+def vdot(t, x, v, m):
     """ to pass to rk4b3. Complicated gravity.
 
     r is (2,3) np.array with the first index being coordinate x/y and the second index being the body label.
