@@ -129,12 +129,14 @@ def vdot(t, x, v, m):
     r is (2,3) np.array with the first index being coordinate x/y and the second index being the body label.
     return (2,3) np.array
     """
-    r12 = x[:, 1] - x[:, 0]; r12m = mag(r12) # rij are (2,) shape np.arrays. rijm are scalars
+    # rij are (2,) shape np.arrays. rijm are scalars
+    r12 = x[:, 1] - x[:, 0]; r12m = mag(r12) 
     r23 = x[:, 2] - x[:, 1]; r23m = mag(r23)
     r31 = x[:, 0] - x[:, 2]; r31m = mag(r31)
-    a12 = m[1]*r12/r12m**1.5 - m[2]*r31/r31m**1.5 # np.arrays of shape (2,)
-    a23 = m[2]*r23/r23m**1.5 - m[0]*r12/r12m**1.5
-    a31 = m[0]*r31/r31m**1.5 - m[1]*r23/r23m**1.5
+    # np.arrays of shape (2,)
+    a12 = (m[1]*r12)/(r12m**1.5) - (m[2]*r31)/(r31m**1.5) 
+    a23 = (m[2]*r23)/(r23m**1.5) - (m[0]*r12)/(r12m**1.5)
+    a31 = (m[0]*r31)/(r31m**1.5) - (m[1]*r23)/(r23m**1.5)
     return np.stack([a12, a23, a31], axis=1)
 
 
@@ -227,6 +229,8 @@ plt.show()
 
 
 # (ii) Visualize mutual distances of the three bodies in logarithmic scale
+
+
 
 # (iii) Visualize error of total energz of the system in logarithmic scaling 
 
