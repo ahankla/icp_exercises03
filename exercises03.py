@@ -142,7 +142,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False, energies=False):
     return ret
 
 
-def mag(x):
+def mag2(x):
     """ returns sum of squared matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sum(x.dot(x))
@@ -157,9 +157,9 @@ def get_vector_distance(x):
     """ returns r distances """
     
     # rij are distances (vector of (2,) shape np.arrays)
-    r12 = x[:, 1] - x[:, 0]
-    r23 = x[:, 2] - x[:, 1]
-    r31 = x[:, 0] - x[:, 2]
+    r12 = x[:,1] - x[:,0]
+    r23 = x[:,2] - x[:,1]
+    r31 = x[:,0] - x[:,2]
 
     return np.stack([r12, r23, r31], axis=1)
 
@@ -171,15 +171,16 @@ def vdot(t, x, v, m, r):
     """
     # Note: C vs Fortran naming convention 0=1, 1=2, 2=3
     # unstack axis=1: rij are distances (vector of (2,) shape np.arrays)
+    r = get_vector_distance(x)
     r12, r23, r31 = r[:,0], r[:,1], r[:,2]
 
     # rijm are sum of squared distances (scalar)
-    r12m = mag(r12)
-    r23m = mag(r23)
-    r31m = mag(r31)
+    r12m = mag2(r12)
+    r23m = mag2(r23)
+    r31m = mag2(r31)
 
+    # a1 = m1 r12_hat / |r12|^2 - m2 r31_hat / |r31|^2
     # np.arrays of shape (2,)
-    # ??????
     a12 = (m[1]*r12)/(r12m**1.5) - (m[2]*r31)/(r31m**1.5) 
     a23 = (m[2]*r23)/(r23m**1.5) - (m[0]*r12)/(r12m**1.5)
     a31 = (m[0]*r31)/(r31m**1.5) - (m[1]*r23)/(r23m**1.5)
@@ -242,7 +243,7 @@ plt.plot(xt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
 # Labeling
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Step size: {} for total time: {}".format(dt, t))
+plt.title("Trajectories\nStep size: {} for total time: {}".format(dt, t))
 plt.legend(["Body 1", "Body 2", "Body 3"])
 #plt.savefig("exercise03_0_stepsize{}_time{}.pdf".format(
 #    str(dt).replace(".",""), t))
@@ -294,7 +295,7 @@ plt.plot(xt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
 # Labeling
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Step size: {} for total time: {}".format(dt, t))
+plt.title("Trajectories\nStep size: {} for total time: {}".format(dt, t))
 plt.legend(["Body 1", "Body 2", "Body 3"])
 plt.savefig("exercise03_2_stepsize{}_time{}.pdf".format(
     str(dt).replace(".",""), t))
@@ -334,10 +335,11 @@ KE_0 = ket[0,:,:]
 PE_0 = pet[0,:,:]
 TE_0 = PE_0 + KE_0
 # Get: total energy at t=i
-TE_i = pet[1,:,:] + ket[1,:,:]
+TE_i = pet[1:,:,:] + ket[1:,:,:]
 # Get: error in total energy = abs(TE(t=i)-TE(t=0))
 err_te = np.abs(TE_i - TE_0)
-print(err_te.shape)
+err_total = np.sum(err_te, axis=2)[:,0]
+print(pet.shape, ket.shape, err_te.shape, err_total.shape)
 ## Plot
 #plt.figure(f)
 #f += 1
