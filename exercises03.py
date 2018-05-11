@@ -76,6 +76,7 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
     vt = np.zeros((n+1, 2, 3))
     rt = np.zeros((n+1, 2, 3))
 
+    # Warnings
     if x0.shape != (2,3):
         print("Error! Please enter the correct dimensions for initial positions."
               "Current shape is " + x0.shape + ", need (2,3)."
@@ -87,39 +88,39 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n, distances=False):
               "Exiting...")
         return 0
 
-    # Set: time(0) = initial values
+    # Timestemp t=0: time(0) = initial values
+    xi = x0
+    vi = v0
+    r0 = get_vector_distance(x0)
+    ri = r0
+
+    # Assign: 
     xt[0, :, :] = x0
     vt[0, :, :] = v0
-    rt[0, :, :] = get_vector_distance(x0)
+    rt[0, :, :] = r0
 
     # Time evolution!
     for i in range(1, n + 1):
 
-        # Time of the previous step
-        t = i - 1
-        
-        # Note that vdot, rdot should return (2,3) arrays!!
-        vi = vt[t, :, :] 
-        xi = xt[t, :, :]
-
-        # Calculate distances
-        r = get_vector_distance(xi)
-
         # Calculate coefficients: v(l), x(k)
-        l1 = h * vdot(t, xi, vi, m, r)
+        l1 = h * vdot(t, xi, vi, m, ri)
         k1 = h * xdot(i-1, xi, vi)
-        l2 = h * vdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1, m, r)
+        l2 = h * vdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1, m, ri)
         k2 = h * xdot(i-1 + 0.5*h, xi + 0.5*k1, vi + 0.5*l1)
-        l3 = h * vdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2, m, r)
+        l3 = h * vdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2, m, ri)
         k3 = h * xdot(i-1 + 0.5*h, xi + 0.5*k2, vi + 0.5*l2)
-        l4 = h * vdot(i-1 + h, xi + k3, vi + l3, m, r)
+        l4 = h * vdot(i-1 + h, xi + k3, vi + l3, m, ri)
         k4 = h * xdot(i-1 + h, xi + k3, vi + l3)
 
-        # Evolve and assign to full list: x(t+1)=x(t)+1/6(l1 + 2*l2 + 2*l3 + l4)
-        vinew = vi + (l1 + 2*l2 + 2*l3 + l4) / 6.
-        vt[i, :, :] = vinew
-        xinew = xi + (k1 + 2*k2 + 2*k3 + k4) / 6.
-        xt[i, :, :] = xinew
+        # Evolve: x(t+1)=x(t)+1/6(l1 + 2*l2 + 2*l3 + l4)
+        xi = xi + (k1 + 2*k2 + 2*k3 + k4) / 6.
+        vi = vi + (l1 + 2*l2 + 2*l3 + l4) / 6.
+        ri = get_vector_distance(xi)
+    
+        # Assign to full list
+        xt[i, :, :] = xi
+        vt[i, :, :] = vi
+        rt[i, :, :] = ri
 
     if not distances:
         return xt, vt
@@ -148,7 +149,7 @@ def vdot(t, x, v, m, r):
     """
     
     # rij are distances (vector of (2,) shape np.arrays)
-    r12, r23, r31 = r
+    r12, r23, r31 = r[:,0], r[:,1], r[:,2]
 
     # rijm are magnitude of distances (scalar)
     r12m = mag(r12)
@@ -186,19 +187,22 @@ v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
 dt = 0.001
-t = 2
+t = 2.2
 xt, vt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt))
 
 # Visualize
 f = 1
 plt.figure(f)
 f += 1
+# Plot Path
 plt.plot(xt[:, 0, 0], xt[:, 1, 0])
 plt.plot(xt[:, 0, 1], xt[:, 1, 1])
 plt.plot(xt[:, 0, 2], xt[:, 1, 2])
+# Plot Initial Position
 plt.plot(xt[0, 0, 0], xt[0, 1, 0], color="C0", marker="*")
 plt.plot(xt[0, 0, 1], xt[0, 1, 1], color="C1", marker="*")
 plt.plot(xt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
+# Labeling
 plt.xlabel("x")
 plt.ylabel("y")
 plt.title("Step size: {} for total time: {}".format(dt, t))
@@ -229,18 +233,21 @@ x0 = np.array(np.stack([[x1, y1], [x2, y2], [x3, y3]], axis=1))
 v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
-dt = 0.01
+dt = 0.0001
 t = 25
 xt, vt, rt = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), distances=True)
 
-# (i) Visualize Trajectories 
+## (i) Visualize Trajectories 
 plt.figure(f); f += 1
+# Plot Path
 plt.plot(xt[:, 0, 0], xt[:, 1, 0])
 plt.plot(xt[:, 0, 1], xt[:, 1, 1])
 plt.plot(xt[:, 0, 2], xt[:, 1, 2])
+# Plot Initial Position
 plt.plot(xt[0, 0, 0], xt[0, 1, 0], color="C0", marker="*")
 plt.plot(xt[0, 0, 1], xt[0, 1, 1], color="C1", marker="*")
 plt.plot(xt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
+# Labeling
 plt.xlabel("x")
 plt.ylabel("y")
 plt.title("Step size: {} for total time: {}".format(dt, t))
@@ -248,27 +255,33 @@ plt.legend(["Body 1", "Body 2", "Body 3"])
 plt.savefig("exercise03_2_stepsize{}_time{}.pdf".format(
     str(dt).replace(".",""), t))
 
-plt.show()
-
-
-# (ii) Visualize mutual distances of the three bodies in logarithmic scale
-def two_obj_distance(x):
-
-    return
-
-def get_distances(xt):
-    """ Input: position array (t, dim, obj). Returns: distance array (t, dim, obj comb) """
-    # previously objects: 1, 2, 3.  new object order: 1-2, 1-3, 2-3
-    # Initialize: Distances of same dimensionality as positions
-    distances = np.zeros(xt.shape) 
-    for t in range(xt.shape[0]):
-        # Get shape (1, dim, obj)
-        xi = xt[t, :, :]
-
-    return distances
-
+## (ii) Visualize mutual distances of the three bodies in logarithmic scale
+# Take absolute value since its distances
+rt = np.abs(rt)
+# Plot
+plt.figure(f)
+f += 1
+# Plot Path
+plt.plot(rt[:, 0, 0], xt[:, 1, 0])
+plt.plot(rt[:, 0, 1], xt[:, 1, 1])
+plt.plot(rt[:, 0, 2], xt[:, 1, 2])
+# Plot Initial Position
+plt.plot(rt[0, 0, 0], xt[0, 1, 0], color="C0", marker="*")
+plt.plot(rt[0, 0, 1], xt[0, 1, 1], color="C1", marker="*")
+plt.plot(rt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
+# Labeling
+plt.xlabel("x")
+plt.ylabel("y")
+plt.title("Distances\nStep size: {} for total time: {}".format(dt, t))
+plt.legend(["Body 1", "Body 2", "Body 3"])
+plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
+    str(dt).replace(".",""), t))
+ax = plt.gca()
+ax.set_xscale("log", nonposx='clip')
+ax.set_yscale("log", nonposy='clip')
 
 # (iii) Visualize error of total energz of the system in logarithmic scaling 
 
 
 
+plt.show()
