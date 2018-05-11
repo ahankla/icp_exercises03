@@ -280,6 +280,7 @@ t = 25
 xt, vt, rt, pet, ket = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), 
                              distances=True, energies=True)
 
+
 ## (i) Visualize Trajectories 
 plt.figure(f); f += 1
 # Plot Path
@@ -297,6 +298,7 @@ plt.title("Step size: {} for total time: {}".format(dt, t))
 plt.legend(["Body 1", "Body 2", "Body 3"])
 plt.savefig("exercise03_2_stepsize{}_time{}.pdf".format(
     str(dt).replace(".",""), t))
+
 
 ## (ii) Visualize mutual distances of the three bodies in logarithmic scale
 # Take absolute value since they're distances
@@ -316,7 +318,7 @@ plt.plot(rt[0, 0, 2], xt[0, 1, 2], color="C2", marker="*")
 plt.xlabel("x")
 plt.ylabel("y")
 plt.title("Distances\nStep size: {} for total time: {}".format(dt, t))
-plt.legend(["Body 1", "Body 2", "Body 3"])
+plt.legend(["Distance 1-2", "Distance 2-3", "Distance 3-1"])
 # Log Scale
 ax = plt.gca()
 ax.set_xscale("log", nonposx='clip')
@@ -325,7 +327,8 @@ ax.set_yscale("log", nonposy='clip')
 plt.savefig("exercise03_3_stepsize{}_time{}.pdf".format(
     str(dt).replace(".",""), t))
 
-# (iii) Visualize ERROR OF TOTAL ENERGY of the system in logarithmic scaling 
+
+## (iii) Visualize ERROR OF TOTAL ENERGY of the system in logarithmic scaling 
 # Get: total energy at t=0
 KE_0 = ket[0,:,:]
 PE_0 = pet[0,:,:]
