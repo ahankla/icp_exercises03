@@ -92,8 +92,10 @@ def rk4b3(xdot, vdot, x0, v0, m, h, n):
 
     # Time evolution!
     for i in range(1, n + 1):
+
         # Time of the previous step
         t = i - 1
+        
         # Note that vdot, rdot should return (2,3) arrays!!
         vi = vt[t, :, :] 
         xi = xt[t, :, :]
@@ -124,24 +126,32 @@ def mag(x):
 
 
 def vdot(t, x, v, m):
-    """to pass to rk4b3. Complicated gravity.
+    """ to pass to rk4b3. Complicated gravity.
 
     r is (2,3) np.array with the first index being coordinate x/y and the second index being the body label.
     return (2,3) np.array
     """
-    # rij are (2,) shape np.arrays. rijm are scalars
-    r12 = x[:, 1] - x[:, 0]; r12m = mag(r12) 
-    r23 = x[:, 2] - x[:, 1]; r23m = mag(r23)
-    r31 = x[:, 0] - x[:, 2]; r31m = mag(r31)
+    
+    # rij are distances (vector of (2,) shape np.arrays)
+    r12 = x[:, 1] - x[:, 0]
+    r23 = x[:, 2] - x[:, 1]
+    r31 = x[:, 0] - x[:, 2]
+
+    # rijm are magnitude of distances (scalar)
+    r12m = mag(r12) 
+    r23m = mag(r23)
+    r31m = mag(r31)
+
     # np.arrays of shape (2,)
     a12 = (m[1]*r12)/(r12m**1.5) - (m[2]*r31)/(r31m**1.5) 
     a23 = (m[2]*r23)/(r23m**1.5) - (m[0]*r12)/(r12m**1.5)
     a31 = (m[0]*r31)/(r31m**1.5) - (m[1]*r23)/(r23m**1.5)
+
     return np.stack([a12, a23, a31], axis=1)
 
 
 def xdot(t, x, v):
-    """xdot = v. v is 2x3 np.array of velocities."""
+    """xdot = v.  v is 2x3 np.array of velocities."""
     return v
 
 
@@ -229,7 +239,20 @@ plt.show()
 
 
 # (ii) Visualize mutual distances of the three bodies in logarithmic scale
+def two_obj_distance(x):
 
+    return
+
+def get_distances(xt):
+    """ Input: position array (t, dim, obj). Returns: distance array (t, dim, obj comb) """
+    # previously objects: 1, 2, 3.  new object order: 1-2, 1-3, 2-3
+    # Initialize: Distances of same dimensionality as positions
+    distances = np.zeros(xt.shape) 
+    for t in range(xt.shape[0]):
+        # Get shape (1, dim, obj)
+        xi = xt[t, :, :]
+
+    return distances
 
 
 # (iii) Visualize error of total energz of the system in logarithmic scaling 
