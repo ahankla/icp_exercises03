@@ -126,7 +126,7 @@ def mag2(x):
     return x[0]**2 + x[1]**2
 
 def mag(x):
-    """ return sum of squared matrix """"
+    """ return sum of squared matrix """
     # https://stackoverflow.com/questions/9171158/how-do-you-get-the-magnitude-of-a-vector-in-numpy
     return np.sum(x.dot(x))
 
