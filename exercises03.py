@@ -283,8 +283,8 @@ x0 = np.array(np.stack([[x1, y1], [x2, y2], [x3, y3]], axis=1))
 v0 = np.array(np.stack([[vx1, vy1], [vx2, vy2], [vx3, vy3]], axis=1))
 
 # Evolve over time
-dt = 0.00001
-t = 9
+dt = 0.00005
+t = 10
 xt, vt, rt, pet, ket = rk4b3(xdot, vdot, x0, v0, m, dt, int(t/dt), 
                              distances=True, energies=True)
 
